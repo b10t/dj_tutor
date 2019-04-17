@@ -3,7 +3,7 @@ from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
 from .models import AdvUser
-from .models import user_regisrated
+from .models import user_registrated
 
 class ChangeUserInfoForm(forms.ModelForm):
     email = forms.EmailField(label='Адрес электронной почты', required=True)
@@ -47,7 +47,7 @@ class RegisterUserForm(forms.ModelForm):
         if commit:
             user.save()
 
-        user_regisrated.send(RegisterUserForm, instance=user)
+        user_registrated.send(RegisterUserForm, instance=user)
 
         return user
 
