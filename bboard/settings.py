@@ -123,3 +123,6 @@ STATIC_URL = '/static/'
 
 
 AUTH_USER_MODEL = 'main.AdvUser'
+
+EMAIL_HOST = 'usk.ilimgroup.ru'
+DEFAULT_FROM_EMAIL = 'alexandr.blid@usk.ilimgroup.ru'
