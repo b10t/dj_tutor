@@ -1,5 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.dispatch import Signal
+
+from .utilities import send_activation_notification
+
+user_registrated = Signal(providing_args=['instance'])
 
 
 class AdvUser(AbstractUser):
@@ -7,9 +12,12 @@ class AdvUser(AbstractUser):
     send_messages = models.BooleanField(default=True, verbose_name='Слать оповещения о новых комментариях ?')
 
     class Meta:
-        pass
         # db_table = ''
         # managed = True
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
+def user_registrated_dispatcher(sender, **kwargs):
+    send_activation_notification(kwargs['instance'])
+
+user_registrated.connect(user_registrated_dispatcher)
