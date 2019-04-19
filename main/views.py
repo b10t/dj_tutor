@@ -99,6 +99,8 @@ def other_page(request, page):
 
     return HttpResponse(template.render(request=request))
 
+def by_rubric(request, pk):
+    pass
 
 @login_required
 def profile(request):
