@@ -15,6 +15,9 @@ from django.contrib.auth.views import PasswordChangeView
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView
 from django.core.signing import BadSignature
+from django.views.generic.edit import DeleteView
+from django.contrib.auth import logout
+from django.contrib import messages
 
 from .models import AdvUser
 from .forms import ChangeUserInfoForm
@@ -62,6 +65,27 @@ class RegisterUserView(CreateView):
 class RegisterDoneView(TemplateView):
     template_name = 'main/register_done.html'
 
+
+class DeleteUserView(LoginRequiredMixin, DeleteView):
+    model = AdvUser
+    template_name = 'main/delete_user.html'
+    success_url = reverse_lazy('main:index')
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user_id = request.user.pk
+        return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        logout(request)
+        messages.add_message(request, messages.SUCCESS, 'Пользователь удален')
+
+        return super().post(request, *args, **kwargs)
+
+    def get_object(self, queryset=None):
+        if not queryset:
+            queryset = self.get_queryset()
+
+        return get_object_or_404(queryset, pk=self.user_id)
 
 def index(request):
     return render(request, 'main/index.html')
