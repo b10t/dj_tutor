@@ -28,4 +28,4 @@ urlpatterns = {
 
 if settings.DEBUG:
     urlpatterns.add(path('static/<path:path>', never_cache(serve)))
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    # urlpatterns.add(path(static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)))
