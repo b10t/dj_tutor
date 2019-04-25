@@ -20,13 +20,13 @@ from django.contrib.auth import logout
 from django.contrib import messages
 from django.shortcuts import redirect
 
+from django.db.models import Q
+from django.core.paginator import Paginator
 from .models import AdvUser
 from .forms import ChangeUserInfoForm
 from .forms import RegisterUserForm
 from .utilities import signer
 
-from django.core.paginator import Paginator
-from django.db.models import Q
 from .models import SubrRubric, Bb
 from .forms import SearchForm
 
@@ -142,18 +142,18 @@ def detail(request, rubric_pk, pk):
     return render(request, 'main/detail.html', context)
 
 @login_required
+def profile(request):
+    bbs = Bb.objects.filter(author=request.user.pk)
+    context = {'bbs': bbs}
+    return render(request, 'main/profile.html', context)
+
+@login_required
 def profile_bb_detail(request, pk):
     bb = get_object_or_404(Bb, author=request.user.pk, pk=pk)
     ais = bb.additionalimage_set.all()
     context = {'bb': bb, 'ais': ais}
 
     return render(request, 'main/profile_bb_detail.html', context)
-
-@login_required
-def profile(request):
-    bbs = Bb.objects.filter(author=request.user.pk)
-    context = {'bbs': bbs}
-    return render(request, 'main/profile.html', context)
 
 @login_required
 def profile_bb_add(request):
@@ -172,10 +172,48 @@ def profile_bb_add(request):
     else:
         form = BbForm(initial={'author': request.user.pk})
         formset = AIFormSet()
-    
+
     context = {'form': form, 'formset': formset}
 
     return render(request, 'main/profile_bb_add.html', context)
+
+@login_required
+def profile_bb_change(request, pk):
+    bb = get_object_or_404(Bb, pk=pk)
+
+    if request.method == 'POST':
+        form = BbForm(request.POST, request.FILES, instance=bb)
+
+        if form.is_valid():
+            bb.save()
+            formset = AIFormSet(request.POST, request.FILES, instance=bb)
+
+            if formset.is_valid():
+                formset.save()
+
+                messages.add_message(request, messages.SUCCESS, 'Объявление исправлено')
+
+                return redirect('main:profile')
+    else:
+        form = BbForm(instance=bb)
+        formset = AIFormSet(instance=bb)
+
+    context = {'form': form, 'formset': formset}
+    return render(request, 'main/profile_bb_change.html', context)
+
+@login_required
+def profile_bb_delete(request, pk):
+    bb = get_object_or_404(Bb, pk=pk)
+
+    if request.method == 'POST':
+        bb.delete()
+
+        messages.add_message(request, messages.SUCCESS, 'Объявление удалено')
+
+        return redirect('main:profile')
+    else:
+        context = {'bb': bb}
+        return render(request, 'main/profile_bb_delete.html', context)
 
 def user_activate(request, sign):
     try:
