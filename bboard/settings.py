@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'captcha',
     'rest_framework',
     'corsheaders',
-    'api.apps.AppConfig',
+     'api.apps.ApiConfig',
 ]
 
 MIDDLEWARE = [
